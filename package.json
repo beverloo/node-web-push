@@ -1,0 +1,22 @@
+{
+  "name": "node-web-push",
+  "version": "0.1.0",
+  "description": "Web Push payload encryption implementation for Node.js",
+  "author": "Peter Beverloo <beverloo@google.com>",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/beverloo/node-web-push.git"
+  },
+  "engines": {
+    "node": ">=0.12"
+  },
+  "dependencies": {
+    "curve25519": "git://github.com/beverloo/node-curve25519.git",
+    "encrypted-content-encoding": "git://github.com/martinthomson/encrypted-content-encoding.git#e5ad327",
+    "urlsafe-base64": "~1.0.0"
+  },
+  "devDependencies": {
+  },
+  "private": true
+}
