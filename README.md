@@ -1,5 +1,5 @@
 # Web Push Payload Encryption (Node.js)
-This package provides an implementation of [IETF Web Push encryption draft](https://tools.ietf.org/html/draft-thomson-webpush-encryption-00), but uses Curve25519 as the ECDH curve rather than the proposed P-256.
+This package provides an implementation of [IETF Web Push encryption draft](https://tools.ietf.org/html/draft-thomson-webpush-encryption-01), but uses Curve25519 as the ECDH curve rather than the proposed P-256.
 
 Note that this package is not meant to be used in production, and has thus not been published on NPM.
 
@@ -18,5 +18,4 @@ Returns an object with three properties: `localPublic`, the 32-byte Curve25519 E
 Returns a Buffer with the decrypted plaintext.
 
 ## TODO
-  * Upgrade to [draft-thomson-webpush-encryption-01](https://tools.ietf.org/html/draft-thomson-webpush-encryption-01).
   * Include some tests to verify the implementation.
