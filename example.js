@@ -26,7 +26,7 @@ var privateKey = curve25519.makeSecretKey(crypto.randomBytes(32)),
 // The payload that should be encrypted.
 var payload = new Buffer('Hello, world!', 'ascii');
 
-// |encrypted| will have three properties: {localPublic, salt, ciphertext}.
+// |encrypted| will have four properties: {localPublic, salt, rs, ciphertext}.
 var encrypted = webpush.encrypt({
   peerPublic: publicKey,
   plaintext: payload
@@ -39,6 +39,7 @@ var decrypted = webpush.decrypt({
   localPrivate: privateKey,
   peerPublic: encrypted.localPublic,
   salt: encrypted.salt,
+  rs: encrypted.rs,
   ciphertext: encrypted.ciphertext
 });
 

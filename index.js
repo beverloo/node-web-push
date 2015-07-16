@@ -19,6 +19,13 @@ var urlbase64 = require('urlsafe-base64'),
     curve25519 = require('curve25519'),
     ece = require('encrypted-content-encoding');
 
+// Size of the AES-128-GCM authentication tag, in bytes.
+const AUTHENTICATION_TAG_SIZE = 16;
+
+// The default record size. Web Push messages must be encrypted in a single
+// record, so messages larger than this should explictly set the |rs|.
+const DEFAULT_RECORD_SIZE = 4096;
+
 // Identifier of the key to use with Martin's HTTP Encrypted Encoding package.
 const KEY_IDENTIFIER = '__webpush_key';
 
@@ -42,6 +49,11 @@ module.exports = {
     if (!params.ciphertext || !(params.ciphertext instanceof Buffer))
       throw new Error('A ciphertext must be provided in the `ciphertext` property.');
 
+    params.rs = params.rs || DEFAULT_RECORD_SIZE;
+
+    if (params.ciphertext.length >= params.rs + AUTHENTICATION_TAG_SIZE + 1)
+      throw new Error('The `ciphertext` must only consist of a single record.');
+
     // Derive the shared secret between the keys.
     var sharedSecret = curve25519.deriveSharedSecret(params.localPrivate,
                                                      params.peerPublic);
@@ -51,7 +63,8 @@ module.exports = {
     // Now actually decrypt the |params.ciphertext| using HTTP Encrypted Encoding.
     return ece.decrypt(params.ciphertext, {
       keyid: KEY_IDENTIFIER,
-      salt: urlbase64.encode(params.salt)
+      salt: urlbase64.encode(params.salt),
+      rs: params.rs
     });
   },
 
@@ -70,21 +83,24 @@ module.exports = {
     var sharedSecret = curve25519.deriveSharedSecret(localPrivate,
                                                      params.peerPublic);
 
-
     // Create a 16-byte salt so that the client's public key can be reused.
     var salt = crypto.randomBytes(SALT_LENGTH);
+
+    var rs = Math.max(params.plaintext.length + 1, DEFAULT_RECORD_SIZE);
 
     ece.saveKey(KEY_IDENTIFIER, sharedSecret);
 
     // Now actually encrypt the |params.plaintext| using HTTP Encrypted Encoding.
     var ciphertext = ece.encrypt(params.plaintext, {
       keyid: KEY_IDENTIFIER,
-      salt: urlbase64.encode(salt)
+      salt: urlbase64.encode(salt),
+      rs: rs
     });
 
     return {
       localPublic: localPublic,
       salt: salt,
+      rs: rs,
       ciphertext: ciphertext
     };
   }
