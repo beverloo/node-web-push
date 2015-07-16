@@ -31,16 +31,16 @@ const SALT_LENGTH = 16;
 module.exports = {
   decrypt: function(params) {
     if (!params.localPrivate || params.localPrivate.length != KEY_LENGTH)
-      throw new Error('A ' + KEY_LENGTH + '-byte localPrivate must be provided.');
+      throw new Error('A ' + KEY_LENGTH + '-byte `localPrivate` must be provided.');
 
     if (!params.peerPublic || params.peerPublic.length != KEY_LENGTH)
-      throw new Error('A ' + KEY_LENGTH + '-byte peerPublic must be provided.');
+      throw new Error('A ' + KEY_LENGTH + '-byte `peerPublic` must be provided.');
 
     if (!params.salt || params.salt.length != SALT_LENGTH)
-      throw new Error('A ' + SALT_LENGTH + '-byte salt must be provided.');
+      throw new Error('A ' + SALT_LENGTH + '-byte `salt` must be provided.');
 
-    if (!params.data || !(params.data instanceof Buffer))
-      throw new Error('A ciphertext must be provided in the data property.');
+    if (!params.ciphertext || !(params.ciphertext instanceof Buffer))
+      throw new Error('A ciphertext must be provided in the `ciphertext` property.');
 
     // Derive the shared secret between the keys.
     var sharedSecret = curve25519.deriveSharedSecret(params.localPrivate,
@@ -48,8 +48,8 @@ module.exports = {
 
     ece.saveKey(KEY_IDENTIFIER, sharedSecret);
 
-    // Now actually decrypt the |params.data| using HTTP Encrypted Encoding.
-    return ece.decrypt(params.data, {
+    // Now actually decrypt the |params.ciphertext| using HTTP Encrypted Encoding.
+    return ece.decrypt(params.ciphertext, {
       keyid: KEY_IDENTIFIER,
       salt: urlbase64.encode(params.salt)
     });
@@ -57,10 +57,10 @@ module.exports = {
 
   encrypt: function(params) {
     if (!params.peerPublic || params.peerPublic.length != KEY_LENGTH)
-      throw new Error('A ' + KEY_LENGTH + '-byte peerPublic must be provided.');
+      throw new Error('A ' + KEY_LENGTH + '-byte `peerPublic` must be provided.');
 
-    if (!params.data || !(params.data instanceof Buffer))
-      throw new Error('A plaintext must be provided in the data property.');
+    if (!params.plaintext || !(params.plaintext instanceof Buffer))
+      throw new Error('A plaintext must be provided in the `plaintext` property.');
 
     // Create an ephemeral public/private key-pair for the encryption.
     var localPrivate = curve25519.makeSecretKey(crypto.randomBytes(KEY_LENGTH)),
@@ -76,8 +76,8 @@ module.exports = {
 
     ece.saveKey(KEY_IDENTIFIER, sharedSecret);
 
-    // Now actually encrypt the |params.data| using HTTP Encrypted Encoding.
-    var ciphertext = ece.encrypt(params.data, {
+    // Now actually encrypt the |params.plaintext| using HTTP Encrypted Encoding.
+    var ciphertext = ece.encrypt(params.plaintext, {
       keyid: KEY_IDENTIFIER,
       salt: urlbase64.encode(salt)
     });

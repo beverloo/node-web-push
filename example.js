@@ -29,7 +29,7 @@ var payload = new Buffer('Hello, world!', 'ascii');
 // |encrypted| will have three properties: {localPublic, salt, ciphertext}.
 var encrypted = webpush.encrypt({
   peerPublic: publicKey,
-  data: payload
+  plaintext: payload
 });
 
 // |decrypted| will return a Buffer with the decrypted plaintext. Note that this
@@ -39,7 +39,7 @@ var decrypted = webpush.decrypt({
   localPrivate: privateKey,
   peerPublic: encrypted.localPublic,
   salt: encrypted.salt,
-  data: encrypted.ciphertext
+  ciphertext: encrypted.ciphertext
 });
 
 console.log(decrypted.toString('ascii'));
